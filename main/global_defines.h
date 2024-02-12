@@ -49,9 +49,9 @@
 #define RC_ARM 4 // if using ELRS this channel should always be your arming channel
 
 // TODO rename to match aux channels function if desired
-#define RC_AUX1 5 // rename if you want channels to have mode names
+#define RC_FLIGHT_MODE 5 // rename if you want channels to have mode names
 #define RC_AUX2 6 // rename if you want channels to have mode names
-#define RC_AUX3 7 // rename if you want channels to have mode names
+#define RC_FLIGHT_CONFIGURATION 7 // rename if you want channels to have mode names
 #define RC_AUX4 8 // rename if you want channels to have mode names
 #define RC_AUX5 9 // rename if you want channels to have mode names
 #define RC_AUX6 10 // rename if you want channels to have mode names
@@ -68,18 +68,18 @@ typedef enum {
 } axisRotation;
 
 // TODO change this depending on your imu rotation
-axisRotation imuRotation[AXIS_COUNT] = {ROT_0_DEG, ROT_0_DEG, ROT_180_DEG}; // roll, pitch, yaw rotation
+axisRotation imuRotation[AXIS_COUNT] = {ROT_0_DEG, ROT_0_DEG, ROT_0_DEG}; // roll, pitch, yaw rotation
 
 // TODO Run the function calculateGyroBias() in setup() to find these values.
 float gyro_bias[AXIS_COUNT] = {
-  0.0f, // roll
-  0.0f, // pitch
-  0.0f, // yaw
+  -1.40551f, // roll
+  0.91389f, // pitch
+  -0.08577f, // yaw
 };
 float acc_bias[AXIS_COUNT] = {
-  0.0f, // x
-  0.0f, // y
-  0.0f, // z
+  0.01454f, // x
+  -0.00277f, // y
+  0.10342f, // z
 };
 
 
