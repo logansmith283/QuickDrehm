@@ -29,25 +29,25 @@ void initRcScalers(midpointRangeScaler_t rc_scalers[]) {
     &rc_scalers[RC_ROLL], // update roll rc_scaler
     174.0f, 992.0f, 1811.0f, // input min, mid and max
     -1.0f, 0.0f, 1.0f, // output min, mid and max don't typically change from a -1.0f to 1.0f range
-    2.0f); // deadband
+    4.0f); // deadband
 
   midpointRangeScalerInit(
     &rc_scalers[RC_PITCH], // update pitch rc_scaler
     174.0f, 992.0f, 1811.0f, // input min, mid and max
     -1.0f, 0.0f, 1.0f, // output min, mid and max don't typically change from a -1.0f to 1.0f range
-    2.0f); // deadband
+    4.0f); // deadband
 
   midpointRangeScalerInit(
     &rc_scalers[RC_THROTTLE], // update throttle rc_scaler
     174.0f, 992.0f, 1811.0f, // input min, mid and max
     0.0f, 0.5, 1.0f, // output min, mid and max don't typically change from a 0.5 to 1.0f range for throttle
-    2.0f); // deadband
+    4.0f); // deadband
 
   midpointRangeScalerInit(
     &rc_scalers[RC_YAW], // update yaw rc_scaler
     174.0f, 992.0f, 1811.0f, // input min, mid and max
     -1.0f, 0.0f, 1.0f, // output min, mid and max don't typically change from a -1.0f to 1.0f range
-    2.0f); // deadband
+    4.0f); // deadband
 
   midpointRangeScalerInit(
     &rc_scalers[RC_ARM], // update arm rc_scaler
