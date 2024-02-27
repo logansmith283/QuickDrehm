@@ -319,6 +319,7 @@ void loop() {
     servo_commands // output servo values
   );
 
+
   // Throttle cut check
   bool motor_cut = motorCutStatus(rc_channels[RC_THROTTLE]); // Return if we should turn motors off by default motors are turned off when throttle is low edit this function to your liking
 
@@ -382,17 +383,23 @@ void controlMixer(float rc_channels[], float pidSums[], float motor_commands[], 
 
   // TODO mix inputs to motor commands
   // motor commands should be between 0 and 1
-  motor_commands[MOTOR_0] = 0.0f;
-  motor_commands[MOTOR_1] = 0.0f;
-  motor_commands[MOTOR_2] = 0.0f;
-  motor_commands[MOTOR_3] = 0.0f;
+  motor_commands[MOTOR_BACK_LEFT] = throttle;
+  motor_commands[MOTOR_FRONT_RIGHT] = throttle;
+  motor_commands[MOTOR_FRONT_LEFT] = throttle;
+  motor_commands[MOTOR_BACK_RIGHT] = throttle;
   
+  float transition = rc_channels[RC_FLIGHT_CONFIGURATION];
+  float multirotor = -1.0f + transition;
+  float fixed_wing = transition;
+
+  // float servo_back_right_fixed_wing = (0.0f + pidsum[AXIS_ROLL] + pidsum[AXIS_PITCH]);
+  // float servo_back_right_multirotor = -90.0f;
   // TODO mix inputs to servo commands
   // servos need to be scaled to work properly with the servo scaling that was set earlier
-  servo_commands[SERVO_BACK_RIGHT] = rc_channels[RC_ROLL] * 90.0f;
-  servo_commands[SERVO_BACK_LEFT] = rc_channels[RC_ROLL] * 90.0f;
-  servo_commands[SERVO_FRONT_RIGHT] = rc_channels[RC_ROLL] * 90.0f;
-  servo_commands[SERVO_FRONT_LEFT] = rc_channels[RC_ROLL] * 90.0f;
+  servo_commands[SERVO_BACK_RIGHT] = multirotor * 90.0f;
+  servo_commands[SERVO_BACK_LEFT] = multirotor * 90.0f;
+  servo_commands[SERVO_FRONT_RIGHT] = multirotor * 90.0f;
+  servo_commands[SERVO_FRONT_LEFT] = multirotor * 90.0f;
   servo_commands[SERVO_4] = 0.0f;
   servo_commands[SERVO_5] = 0.0f;
   servo_commands[SERVO_6] = 0.0f;
