@@ -399,7 +399,7 @@ void controlMixer(float rc_channels[], float pidSums[], float motor_commands[], 
   servo_commands[SERVO_BACK_RIGHT] = multirotor * 90.0f;
   servo_commands[SERVO_BACK_LEFT] = multirotor * 90.0f;
   servo_commands[SERVO_FRONT_RIGHT] = multirotor * 90.0f;
-  servo_commands[SERVO_FRONT_LEFT] = multirotor * 90.0f;
+  servo_commands[SERVO_FRONT_LEFT] = rc_channels[RC_ROLL] * 90.0f;
   servo_commands[SERVO_4] = 0.0f;
   servo_commands[SERVO_5] = 0.0f;
   servo_commands[SERVO_6] = 0.0f;
