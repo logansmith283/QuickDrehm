@@ -360,6 +360,14 @@ void loop() {
 
   // Regulate loop rate
   maxLoopRate(LOOPRATE); // Will not exceed LOOPRATE
+
+  // bool should_print = shouldPrint(current_time, 10.0f); // Print data at 10hz
+  // if (should_print) {
+  //   printDebug("pitch pidsum", pidSums[AXIS_PITCH]);
+  //   printDebug(", roll pidsum", pidSums[AXIS_ROLL]);
+  //   printDebug(", yaw pidsum", pidSums[AXIS_YAW]);
+  //   printNewLine();
+  // }
 }
 
 
@@ -381,12 +389,16 @@ void controlMixer(float rc_channels[], float pidSums[], float motor_commands[], 
   // Positive pitch = pitch down
   // Positive yaw = yaw left
 
+  float pitch_command = pidSums[AXIS_PITCH];
+  float roll_command = pidSums[AXIS_ROLL];
+  float yaw_command = pidSums[AXIS_YAW];
+
   // TODO mix inputs to motor commands
   // motor commands should be between 0 and 1
-  motor_commands[MOTOR_BACK_LEFT] = throttle;
-  motor_commands[MOTOR_FRONT_RIGHT] = throttle;
-  motor_commands[MOTOR_FRONT_LEFT] = throttle;
-  motor_commands[MOTOR_BACK_RIGHT] = throttle;
+  motor_commands[MOTOR_BACK_LEFT] = throttle + roll_command + pitch_command;// - yaw_command;
+  motor_commands[MOTOR_FRONT_RIGHT] = throttle - roll_command - pitch_command;// - yaw_command;
+  motor_commands[MOTOR_FRONT_LEFT] = throttle + roll_command - pitch_command;// + yaw_command;
+  motor_commands[MOTOR_BACK_RIGHT] = throttle - roll_command + pitch_command;// + yaw_command;
   
   float transition = rc_channels[RC_FLIGHT_CONFIGURATION];
   float multirotor = -1.0f + transition;
@@ -396,10 +408,10 @@ void controlMixer(float rc_channels[], float pidSums[], float motor_commands[], 
   // float servo_back_right_multirotor = -90.0f;
   // TODO mix inputs to servo commands
   // servos need to be scaled to work properly with the servo scaling that was set earlier
-  servo_commands[SERVO_BACK_RIGHT] = multirotor * 90.0f;
-  servo_commands[SERVO_BACK_LEFT] = multirotor * 90.0f;
-  servo_commands[SERVO_FRONT_RIGHT] = multirotor * 90.0f;
-  servo_commands[SERVO_FRONT_LEFT] = rc_channels[RC_ROLL] * 90.0f;
+  servo_commands[SERVO_BACK_RIGHT] = multirotor * 90.0f + (yaw_command * 45.0f);
+  servo_commands[SERVO_BACK_LEFT] = multirotor * 90.0f - (yaw_command * 45.0f);
+  servo_commands[SERVO_FRONT_RIGHT] = multirotor * 90.0f + (yaw_command * 45.0f);
+  servo_commands[SERVO_FRONT_LEFT] = multirotor * 90.0f - (yaw_command * 45.0f);
   servo_commands[SERVO_4] = 0.0f;
   servo_commands[SERVO_5] = 0.0f;
   servo_commands[SERVO_6] = 0.0f;

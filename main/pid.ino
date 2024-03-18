@@ -141,7 +141,7 @@ void ratePidInit(ratePid_t *pid) {
   pid->kp[AXIS_YAW] = PTERM_SCALE * 15.0f;
   pid->ki[AXIS_YAW] = ITERM_SCALE * 10.0f;
   pid->kd[AXIS_YAW] = DTERM_SCALE * 5.0f;
-  pid->kff[AXIS_YAW] = FFTERM_SCALE * 0.0f;
+  pid->kff[AXIS_YAW] = FFTERM_SCALE * 30.0f;
 
   for (int axis = 0; axis < AXIS_COUNT; axis++) {
     pid->previous_error_or_measurement[axis] = 0.0f;
@@ -204,7 +204,7 @@ void ratePidApply(ratePid_t *pid, float setpoint[], float gyro[], float pidSums[
     float pterm = pid->kp[axis] * error;
 
     // Iterm is the integral of error times a scaler
-    pid->integral[axis] += pid->ki[axis] * error;
+    pid->integral[axis] += pid->ki[axis] * error * DT;
 
     pid->integral[axis] = constrain(pid->integral[axis], -pid->max_iterm_windup, pid->max_iterm_windup);
     float iterm = pid->integral[axis];
