@@ -239,22 +239,55 @@ void loop() {
 //=========================================================PID CONTROLLERS=========================================================//
 
 // TODO enable and finish the below code when getting ready for transition flights
-/*
+
+  float roll_kp_multi = 0.0f;
+  float roll_ki_multi = 0.0f;
+  float roll_kd_multi = 0.0f;
+  float roll_kff_multi = 0.0f;
+
+  float pitch_kp_multi = 0.0f;
+  float pitch_ki_multi = 0.0f;
+  float pitch_kd_multi = 0.0f;
+  float pitch_kff_multi = 0.0f;
+
+  float yaw_kp_multi = 0.0f;
+  float yaw_ki_multi = 0.0f;
+  float yaw_kd_multi = 0.0f;
+  float yaw_kff_multi = 0.0f;
+
+  float roll_kp_fixed = 0.0f;
+  float roll_ki_fixed = 0.0f;
+  float roll_kd_fixed = 0.0f;
+  float roll_kff_fixed = 0.0f;
+
+  float pitch_kp_fixed = 0.0f;
+  float pitch_ki_fixed = 0.0f;
+  float pitch_kd_fixed = 0.0f;
+  float pitch_kff_fixed = 0.0f;
+
+  float yaw_kp_fixed = 0.0f;
+  float yaw_ki_fixed = 0.0f;
+  float yaw_kd_fixed = 0.0f;
+  float yaw_kff_fixed = 0.0f;
+
+  float transition_state = rc_channel[RC_FLIGHT_CONFIGURATION]; // 0 to 1 range, 0 = multi, 1 = fixed
+
   // update pid values based on flight mode
-  float roll_kp = ???;
-  float roll_ki = ???;
-  float roll_kd = ???;
-  float roll_kff = ???;
+  float roll_kp = roll_kp_fixed * transition_state + roll_kp_multi * (1.0f - transition_state);
+  float roll_ki = roll_ki_fixed * transition_state + roll_ki_multi * (1.0f - transition_state);
+  float roll_kd = roll_kd_fixed * transition_state + roll_kd_multi * (1.0f - transition_state);
+  float roll_kff = roll_kff_fixed * transition_state + roll_kff_multi * (1.0f - transition_state);
 
-  float pitch_kp = ???;
-  float pitch_ki = ???;
-  float pitch_kd = ???;
-  float pitch_kff = ???;
+  float pitch_kp = pitch_kp_fixed * transition_state + pitch_kp_multi * (1.0f - transition_state);
+  float pitch_ki = pitch_ki_fixed * transition_state + pitch_ki_multi * (1.0f - transition_state);
+  float pitch_kd = pitch_kd_fixed * transition_state + pitch_kd_multi * (1.0f - transition_state);
+  float pitch_kff = pitch_kff_fixed * transition_state + pitch_kff_multi * (1.0f - transition_state);
 
-  float yaw_kp = ???;
-  float yaw_ki = ???;
-  float yaw_kd = ???;
-  float yaw_kff = ???;
+  float yaw_kp = yaw_kp_fixed * transition_state + yaw_kp_multi * (1.0f - transition_state);
+  float yaw_ki = yaw_ki_fixed * transition_state + yaw_ki_multi * (1.0f - transition_state);
+  float yaw_kd = yaw_kd_fixed * transition_state + yaw_kd_multi * (1.0f - transition_state);
+  float yaw_kff = yaw_kff_fixed * transition_state + yaw_kff_multi * (1.0f - transition_state);
+
   updatePids(
     &ratePid,
     roll_kp,
@@ -270,7 +303,7 @@ void loop() {
     yaw_kd,
     yaw_kff
   );
-*/
+
   float pidSums[AXIS_COUNT] = {0.0f, 0.0f, 0.0f}; // will be used in the mixer
   if (rc_channels[RC_FLIGHT_MODE] > 0.55) { // lets call aux1 angle mode for now, you can rename it later
 
