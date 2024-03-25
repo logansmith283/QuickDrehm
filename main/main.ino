@@ -408,10 +408,10 @@ void controlMixer(float rc_channels[], float pidSums[], float motor_commands[], 
   // float servo_back_right_multirotor = -90.0f;
   // TODO mix inputs to servo commands
   // servos need to be scaled to work properly with the servo scaling that was set earlier
-  servo_commands[SERVO_BACK_RIGHT] = multirotor * 90.0f + (yaw_command * 45.0f);
-  servo_commands[SERVO_BACK_LEFT] = multirotor * 90.0f - (yaw_command * 45.0f);
-  servo_commands[SERVO_FRONT_RIGHT] = multirotor * 90.0f + (yaw_command * 45.0f);
-  servo_commands[SERVO_FRONT_LEFT] = multirotor * 90.0f - (yaw_command * 45.0f);
+  servo_commands[SERVO_BACK_RIGHT] = multirotor * 90.0f + (yaw_command * 20.0f);
+  servo_commands[SERVO_BACK_LEFT] = multirotor * 90.0f - (yaw_command * 20.0f);
+  servo_commands[SERVO_FRONT_RIGHT] = multirotor * 90.0f + (yaw_command * 20.0f);
+  servo_commands[SERVO_FRONT_LEFT] = multirotor * 90.0f - (yaw_command * 20.0f);
   servo_commands[SERVO_4] = 0.0f;
   servo_commands[SERVO_5] = 0.0f;
   servo_commands[SERVO_6] = 0.0f;

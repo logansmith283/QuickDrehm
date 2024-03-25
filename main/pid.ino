@@ -126,20 +126,20 @@ void ratePidInit(ratePid_t *pid) {
 #define FFTERM_SCALE (0.032029f / 1000.0f)
 
   // Roll PID's
-  pid->kp[AXIS_ROLL] = PTERM_SCALE * 10.0f;
-  pid->ki[AXIS_ROLL] = ITERM_SCALE * 10.0f;
-  pid->kd[AXIS_ROLL] = DTERM_SCALE * 10.0f;
+  pid->kp[AXIS_ROLL] = PTERM_SCALE * 50.0f;
+  pid->ki[AXIS_ROLL] = ITERM_SCALE * 40.0f;
+  pid->kd[AXIS_ROLL] = DTERM_SCALE * 40.0f;
   pid->kff[AXIS_ROLL] = FFTERM_SCALE * 0.0f;
 
   // Pitch PID's
-  pid->kp[AXIS_PITCH] = PTERM_SCALE * 10.0f;
-  pid->ki[AXIS_PITCH] = ITERM_SCALE * 10.0f;
-  pid->kd[AXIS_PITCH] = DTERM_SCALE * 10.0f;
+  pid->kp[AXIS_PITCH] = PTERM_SCALE * 80.0f;
+  pid->ki[AXIS_PITCH] = ITERM_SCALE * 50.0f;
+  pid->kd[AXIS_PITCH] = DTERM_SCALE * 50.0f;
   pid->kff[AXIS_PITCH] = FFTERM_SCALE * 0.0f;
 
   // Yaw PID's
-  pid->kp[AXIS_YAW] = PTERM_SCALE * 15.0f;
-  pid->ki[AXIS_YAW] = ITERM_SCALE * 10.0f;
+  pid->kp[AXIS_YAW] = PTERM_SCALE * 90.0f;
+  pid->ki[AXIS_YAW] = ITERM_SCALE * 50.0f;
   pid->kd[AXIS_YAW] = DTERM_SCALE * 5.0f;
   pid->kff[AXIS_YAW] = FFTERM_SCALE * 30.0f;
 
