@@ -363,9 +363,12 @@ void loop() {
 
   // bool should_print = shouldPrint(current_time, 10.0f); // Print data at 10hz
   // if (should_print) {
-  //   printDebug("pitch pidsum", pidSums[AXIS_PITCH]);
-  //   printDebug(", roll pidsum", pidSums[AXIS_ROLL]);
-  //   printDebug(", yaw pidsum", pidSums[AXIS_YAW]);
+  // //   printDebug("Yaw rc value: ", rc_channels[RC_YAW]);
+  //   printDebug("Yaw pidsum: ", pidSums[AXIS_YAW]);
+  //   printDebug("yaw setpoint: ", setpoints_rpy[AXIS_YAW]);
+  //   printDebug("yaw gyro: ", gyro_filtered[AXIS_YAW]);
+  //   printDebug("yaw pitch: ", gyro_filtered[AXIS_PITCH]);
+  //   printDebug("yaw roll: ", gyro_filtered[AXIS_ROLL]);
   //   printNewLine();
   // }
 }

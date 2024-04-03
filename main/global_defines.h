@@ -71,10 +71,15 @@ typedef enum {
 axisRotation imuRotation[AXIS_COUNT] = {ROT_0_DEG, ROT_0_DEG, ROT_0_DEG}; // roll, pitch, yaw rotation
 
 // TODO Run the function calculateGyroBias() in setup() to find these values.
+// float gyro_bias[AXIS_COUNT] = {
+//   -1.40551f, // roll
+//   0.91389f, // pitch
+//   -0.08577f, // yaw
+// };
 float gyro_bias[AXIS_COUNT] = {
-  -1.40551f, // roll
-  0.91389f, // pitch
-  -0.08577f, // yaw
+  -0.90261f, // roll
+  0.87131f, // pitch
+  -0.06315f, // yaw
 };
 float acc_bias[AXIS_COUNT] = {
   0.01454f, // x
