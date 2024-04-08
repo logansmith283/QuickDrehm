@@ -139,7 +139,7 @@ void ratePidInit(ratePid_t *pid) {
 
   // Yaw PID's
   pid->kp[AXIS_YAW] = PTERM_SCALE * 90.0f;
-  pid->ki[AXIS_YAW] = ITERM_SCALE * 110.0f;
+  pid->ki[AXIS_YAW] = ITERM_SCALE * 30.0f;
   pid->kd[AXIS_YAW] = DTERM_SCALE * 5.0f;
   pid->kff[AXIS_YAW] = FFTERM_SCALE * 30.0f;
 
