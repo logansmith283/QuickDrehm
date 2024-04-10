@@ -41,6 +41,7 @@ ratePid_t ratePid;
 gyroFilters_t gyroFilters;
 accFilters_t accFilters;
 rcFilters_t rcFilters;
+slewFilter_t transitionSlew;
 
 // All the code that is only run once
 void setup() {
@@ -48,6 +49,9 @@ void setup() {
   delay(500);
   
   initMotors();
+
+  // Initialize the transition slew
+  slewFilterInit(&transitionSlew, 1.0f, DT);
 
   // Initilize the rcScalers
   initRcScalers(rcScalers);
@@ -111,6 +115,12 @@ void setup() {
     printNewLine();
   }
 */
+
+// first value is the multirotor value, second is the fixed wing value
+float applyTransition(float multirotor_value, float fixed_wing_value) {
+    float transition = transitionSlew.state;
+    return fixed_wing_value * transition + (1.0f - transition) * multirotor_value;
+}
 
 //========================================================================================================================//
 //                                                       MAIN LOOP                                                        //
@@ -186,6 +196,8 @@ void loop() {
   // will only filter the first 4 channels and not switch channels
   rcFiltersApply(&rcFilters, rc_channels);
 
+  slewFilterApply(&transitionSlew, rc_channels[RC_FLIGHT_CONFIGURATION]);
+
 //===============================================CREATE SETPOINTS FOR PID CONTROLLER===================================================//
 
   // TODO finish this
@@ -197,12 +209,12 @@ void loop() {
     // keep the max angle below about 60
 
     float max_attitude = 45.0f;
-    setpoints_rpy[AXIS_ROLL] = rcCurve(rc_channels[RC_ROLL], 0.5f, max_attitude); // scaled value, expo, max attitude deg
+    setpoints_rpy[AXIS_ROLL] = rcCurve(rc_channels[RC_ROLL], 0.5f, applyTransition(max_attitude, 60)); // scaled value, expo, max attitude deg
     setpoints_rpy[AXIS_PITCH] = rcCurve(rc_channels[RC_PITCH], 0.5f, max_attitude); // scaled value, expo, max attitude deg
 
     float max_rotation = 300.0f;
     // yaw is set to negative rc_channels positive gyro yaw is to the left we want stick movements to the right to be positive
-    setpoints_rpy[AXIS_YAW] = -rcCurve(rc_channels[RC_YAW], 0.5f, max_rotation); // scaled value, expo, max rotation deg/sec
+    setpoints_rpy[AXIS_YAW] = -rcCurve(rc_channels[RC_YAW], 0.5f, applyTransition(max_rotation, 150)); // scaled value, expo, max rotation deg/sec
   } else { // acro mode
     // These setpoints are in deg/sec, in otherwords how fast you want to rotate
     // be careful setting the max setpoint above 60 deg for yaw on fixed wings as they have trouble yawing that fast
@@ -211,11 +223,11 @@ void loop() {
 
     float max_rotation = 300.0f;
 
-    setpoints_rpy[AXIS_ROLL] = rcCurve(rc_channels[RC_ROLL], 0.5f, max_rotation); // scaled value, expo, max rotation deg/sec
-    setpoints_rpy[AXIS_PITCH] = rcCurve(rc_channels[RC_PITCH], 0.5f, max_rotation); // scaled value, expo, max rotation deg/sec
+    setpoints_rpy[AXIS_ROLL] = rcCurve(rc_channels[RC_ROLL], 0.5f, applyTransition(max_rotation, 150)); // scaled value, expo, max rotation deg/sec
+    setpoints_rpy[AXIS_PITCH] = rcCurve(rc_channels[RC_PITCH], 0.5f, applyTransition(max_rotation, 150)); // scaled value, expo, max rotation deg/sec
 
     // yaw is set to negative rc_channels positive gyro yaw is to the left we want stick movements to the right to be positive
-    setpoints_rpy[AXIS_YAW] = -rcCurve(rc_channels[RC_YAW], 0.5f, max_rotation); // scaled value, expo, max rotation deg/sec
+    setpoints_rpy[AXIS_YAW] = -rcCurve(rc_channels[RC_YAW], 0.5f, applyTransition(max_rotation, 150)); // scaled value, expo, max rotation deg/sec
   }
 
 //===============================================MODIFY SETPOINTS DURING FAILSAFE===================================================//
@@ -240,53 +252,20 @@ void loop() {
 
 // TODO enable and finish the below code when getting ready for transition flights
 
-  float roll_kp_multi = 0.0f;
-  float roll_ki_multi = 0.0f;
-  float roll_kd_multi = 0.0f;
-  float roll_kff_multi = 0.0f;
+  float roll_kp = applyTransition(50.0f, 20.0f);
+  float roll_ki = applyTransition(40.0f, 20.0f);
+  float roll_kd = applyTransition(40.0f, 10.0f);
+  float roll_kff = applyTransition(0.0f, 20.0f);
 
-  float pitch_kp_multi = 0.0f;
-  float pitch_ki_multi = 0.0f;
-  float pitch_kd_multi = 0.0f;
-  float pitch_kff_multi = 0.0f;
+  float pitch_kp = applyTransition(80.0f, 20.0f);
+  float pitch_ki = applyTransition(50.0f, 20.0f);
+  float pitch_kd = applyTransition(50.0f, 10.0f);
+  float pitch_kff = applyTransition(0.0f, 20.0f);
 
-  float yaw_kp_multi = 0.0f;
-  float yaw_ki_multi = 0.0f;
-  float yaw_kd_multi = 0.0f;
-  float yaw_kff_multi = 0.0f;
-
-  float roll_kp_fixed = 0.0f;
-  float roll_ki_fixed = 0.0f;
-  float roll_kd_fixed = 0.0f;
-  float roll_kff_fixed = 0.0f;
-
-  float pitch_kp_fixed = 0.0f;
-  float pitch_ki_fixed = 0.0f;
-  float pitch_kd_fixed = 0.0f;
-  float pitch_kff_fixed = 0.0f;
-
-  float yaw_kp_fixed = 0.0f;
-  float yaw_ki_fixed = 0.0f;
-  float yaw_kd_fixed = 0.0f;
-  float yaw_kff_fixed = 0.0f;
-
-  float transition_state = rc_channel[RC_FLIGHT_CONFIGURATION]; // 0 to 1 range, 0 = multi, 1 = fixed
-
-  // update pid values based on flight mode
-  float roll_kp = roll_kp_fixed * transition_state + roll_kp_multi * (1.0f - transition_state);
-  float roll_ki = roll_ki_fixed * transition_state + roll_ki_multi * (1.0f - transition_state);
-  float roll_kd = roll_kd_fixed * transition_state + roll_kd_multi * (1.0f - transition_state);
-  float roll_kff = roll_kff_fixed * transition_state + roll_kff_multi * (1.0f - transition_state);
-
-  float pitch_kp = pitch_kp_fixed * transition_state + pitch_kp_multi * (1.0f - transition_state);
-  float pitch_ki = pitch_ki_fixed * transition_state + pitch_ki_multi * (1.0f - transition_state);
-  float pitch_kd = pitch_kd_fixed * transition_state + pitch_kd_multi * (1.0f - transition_state);
-  float pitch_kff = pitch_kff_fixed * transition_state + pitch_kff_multi * (1.0f - transition_state);
-
-  float yaw_kp = yaw_kp_fixed * transition_state + yaw_kp_multi * (1.0f - transition_state);
-  float yaw_ki = yaw_ki_fixed * transition_state + yaw_ki_multi * (1.0f - transition_state);
-  float yaw_kd = yaw_kd_fixed * transition_state + yaw_kd_multi * (1.0f - transition_state);
-  float yaw_kff = yaw_kff_fixed * transition_state + yaw_kff_multi * (1.0f - transition_state);
+  float yaw_kp = applyTransition(90.0f, 20.0f);
+  float yaw_ki = applyTransition(30.0f, 20.0f);
+  float yaw_kd = applyTransition(5.0f, 10.0f);
+  float yaw_kff = applyTransition(30.0f, 20.0f);
 
   updatePids(
     &ratePid,
@@ -429,25 +408,43 @@ void controlMixer(float rc_channels[], float pidSums[], float motor_commands[], 
   float roll_command = pidSums[AXIS_ROLL];
   float yaw_command = pidSums[AXIS_YAW];
 
+
+  float motor_back_left_multi = throttle + roll_command + pitch_command;
+  float motor_front_right_multi = throttle - roll_command - pitch_command;
+  float motor_front_left_multi = throttle + roll_command - pitch_command;
+  float motor_back_right_multi = throttle - roll_command + pitch_command;
+
+  float motor_back_left_fixed = throttle - yaw_command;
+  float motor_front_right_fixed = throttle + yaw_command;
+  float motor_front_left_fixed = throttle - yaw_command;
+  float motor_back_right_fixed = throttle + yaw_command;
+
   // TODO mix inputs to motor commands
   // motor commands should be between 0 and 1
-  motor_commands[MOTOR_BACK_LEFT] = throttle + roll_command + pitch_command;// - yaw_command;
-  motor_commands[MOTOR_FRONT_RIGHT] = throttle - roll_command - pitch_command;// - yaw_command;
-  motor_commands[MOTOR_FRONT_LEFT] = throttle + roll_command - pitch_command;// + yaw_command;
-  motor_commands[MOTOR_BACK_RIGHT] = throttle - roll_command + pitch_command;// + yaw_command;
-  
-  float transition = rc_channels[RC_FLIGHT_CONFIGURATION];
-  float multirotor = -1.0f + transition;
-  float fixed_wing = transition;
+  motor_commands[MOTOR_BACK_LEFT] = applyTransition(motor_back_left_multi, motor_back_left_fixed);
+  motor_commands[MOTOR_FRONT_RIGHT] = applyTransition(motor_front_right_multi, motor_front_right_fixed);
+  motor_commands[MOTOR_FRONT_LEFT] = applyTransition(motor_front_left_multi, motor_front_left_fixed);
+  motor_commands[MOTOR_BACK_RIGHT] = applyTransition(motor_back_right_multi, motor_back_right_fixed);
 
   // float servo_back_right_fixed_wing = (0.0f + pidsum[AXIS_ROLL] + pidsum[AXIS_PITCH]);
   // float servo_back_right_multirotor = -90.0f;
   // TODO mix inputs to servo commands
+
+  float servo_back_right_multi = (transitionSlew.state - 1.0f) * 90.0f + (yaw_command * 20.0f);
+  float servo_back_left_multi = (transitionSlew.state - 1.0f) * 90.0f - (yaw_command * 20.0f);
+  float servo_front_right_multi = (transitionSlew.state - 1.0f) * 90.0f + (yaw_command * 20.0f);
+  float servo_front_left_multi = (transitionSlew.state - 1.0f) * 90.0f - (yaw_command * 20.0f);
+
+  float servo_back_right_fixed = transitionSlew.state + (roll_command * 60.0f) - (pitch_command * 60.0f);
+  float servo_back_left_fixed = transitionSlew.state - (roll_command * 60.0f) - (pitch_command * 60.0f);
+  float servo_front_right_fixed = transitionSlew.state + (roll_command * 60.0f) + (pitch_command * 60.0f);
+  float servo_front_left_fixed = transitionSlew.state - (roll_command * 60.0f) + (pitch_command * 60.0f);
+
   // servos need to be scaled to work properly with the servo scaling that was set earlier
-  servo_commands[SERVO_BACK_RIGHT] = multirotor * 90.0f + (yaw_command * 20.0f);
-  servo_commands[SERVO_BACK_LEFT] = multirotor * 90.0f - (yaw_command * 20.0f);
-  servo_commands[SERVO_FRONT_RIGHT] = multirotor * 90.0f + (yaw_command * 20.0f);
-  servo_commands[SERVO_FRONT_LEFT] = multirotor * 90.0f - (yaw_command * 20.0f);
+  servo_commands[SERVO_BACK_RIGHT] = applyTransition(servo_back_right_multi, servo_back_right_fixed);
+  servo_commands[SERVO_BACK_LEFT] = applyTransition(servo_back_left_multi, servo_back_left_fixed);
+  servo_commands[SERVO_FRONT_RIGHT] = applyTransition(servo_front_right_multi, servo_front_right_fixed);
+  servo_commands[SERVO_FRONT_LEFT] = applyTransition(servo_front_left_multi, servo_front_left_fixed);
   servo_commands[SERVO_4] = 0.0f;
   servo_commands[SERVO_5] = 0.0f;
   servo_commands[SERVO_6] = 0.0f;
